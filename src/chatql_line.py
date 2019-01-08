@@ -19,6 +19,7 @@ handler = WebhookHandler(os.environ.get('LINE_CHANNEL_SECRET'))
 def callback():
     """Line Webhook interface"""
     # get X-Line-Signature header value
+    app.logger.info(app.logger.info)
     signature = request.headers['X-Line-Signature']
 
     # get request body as text
