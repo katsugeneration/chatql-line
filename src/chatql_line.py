@@ -3,6 +3,7 @@
 # Licensed under the MIT License
 """Line Webhook Server."""
 import os
+import logging
 from flask import Flask, request, abort
 
 from linebot import LineBotApi, WebhookHandler
