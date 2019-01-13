@@ -26,6 +26,15 @@ client = chatql.mongodb_client.MongoClient(
 engine = chatql.engine.DialogEngine(client)
 client.import_scenario("scenario.json")
 
+chatql_query = '''
+    query getResponse(request: String!) {
+        response(request: $request) {
+            id
+            text
+        }
+    }
+'''
+
 
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -51,9 +60,16 @@ def handle_message(event):
     """Text Message Handler."""
     if event.reply_token == '00000000000000000000000000000000':
         return
+
+    text = event.message.text
+    result = chatql.schema.execute(
+                chatql_query,
+                context={'engine': engine},
+                variables={'request': text})
+
     line_bot_api.reply_message(
         event.reply_token,
-        TextSendMessage(text=event.message.text))
+        TextSendMessage(text=result.data['response']['text']))
 
 
 if __name__ == "__main__":
