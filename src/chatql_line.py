@@ -60,7 +60,7 @@ def _get_user(**attributes):
     """Get chatql managed user.
 
     Args:
-        attributes (dict): (Optional) user attributes dictionary
+        attributes (dict): target user attributes dictionary
     Return:
         ID (str): User ID string managed chatql. return None, case user does not exist.
     """
