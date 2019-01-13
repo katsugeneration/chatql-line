@@ -1,7 +1,7 @@
 aniso8601==3.0.2
 certifi==2018.11.29
 chardet==3.0.4
--e git+https://github.com/katsugeneration/chatql.git
+-e git+https://github.com/katsugeneration/chatql.git#egg=chatql-0.2.0b
 Click==7.0
 Flask==1.0.2
 future==0.17.1
