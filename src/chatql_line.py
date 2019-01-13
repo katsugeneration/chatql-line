@@ -68,7 +68,7 @@ def handle_message(event):
                 variables={'request': text})
 
     if result.errors is not None:
-        print(result.data)
+        print(result.errors)
         abort(500)
 
     line_bot_api.reply_message(
