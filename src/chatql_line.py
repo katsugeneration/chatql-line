@@ -27,7 +27,7 @@ engine = chatql.engine.DialogEngine(client)
 client.import_scenario("scenario.json")
 
 chatql_query = '''
-    query getResponse(request: String!) {
+    query getResponse($request: String!) {
         response(request: $request) {
             id
             text
