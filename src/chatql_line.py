@@ -3,6 +3,7 @@
 # Licensed under the MIT License
 """Line Webhook Server."""
 import os
+import json
 import logging
 from flask import Flask, request, abort
 
@@ -26,14 +27,90 @@ client = chatql.mongodb_client.MongoClient(
 engine = chatql.engine.DialogEngine(client)
 client.import_scenario("scenario.json")
 
-chatql_query = '''
-    query getResponse($request: String!) {
-        response(request: $request) {
-            id
-            text
+
+def _create_user(**attributes):
+    """Create chatql managed user.
+
+    Args:
+        attributes (dict): (Optional) user attributes dictionary
+    Return:
+        ID (str): User ID string managed chatql
+    """
+    query = '''
+        mutation createUser($optionalArgs: String) {
+            createUser(optionalArgs: $optionalArgs) {
+                user {
+                    id
+                }
+            }
         }
-    }
-'''
+    '''
+    result = chatql.schema.execute(
+                query,
+                context={'engine': engine},
+                variables={"optionalArgs": json.dumps(attributes)})
+
+    if result.errors is not None:
+        app.logger.error(result.errors)
+        abort(500)
+    return result.data['createUser']['user']['id']
+
+
+def _get_user(**attributes):
+    """Get chatql managed user.
+
+    Args:
+        attributes (dict): (Optional) user attributes dictionary
+    Return:
+        ID (str): User ID string managed chatql. return None, case user does not exist.
+    """
+    query = '''
+        query getUser($optionalArgs: String) {
+            user(optionalArgs: $optionalArgs) {
+                id
+            }
+        }
+    '''
+    result = chatql.schema.execute(
+                query,
+                context={'engine': engine},
+                variables={"optionalArgs": json.dumps(attributes)})
+
+    if result.errors is not None:
+        app.logger.error(result.errors)
+        abort(500)
+
+    if result.data['createUser']['user']['id'] is None:
+        return _create_user(**attributes)
+    return result.data['createUser']['user']['id']
+
+
+def _generate_response(request, user_id):
+    """Generate response with chatql.
+
+    Args:
+        request (str): User input text
+        user_id (str): User ID string managed chatql
+    Return:
+        response (str): Response string
+    """
+    query = '''
+        query getResponse($request: String!, $user: ID) {
+            response(request: $request, user: $user) {
+                id
+                text
+            }
+        }
+    '''
+    result = chatql.schema.execute(
+                query,
+                context={'engine': engine},
+                variables={'request': request, 'user': user_id})
+
+    if result.errors is not None:
+        app.logger.error(result.errors)
+        abort(500)
+    return result.data['response']['text']
 
 
 @app.route("/callback", methods=['POST'])
@@ -61,19 +138,12 @@ def handle_message(event):
     if event.reply_token == '00000000000000000000000000000000':
         return
 
-    text = event.message.text
-    result = chatql.schema.execute(
-                chatql_query,
-                context={'engine': engine},
-                variables={'request': text})
-
-    if result.errors is not None:
-        print(result.errors)
-        abort(500)
+    user_id = _get_user(**{"user_id": event.source.user_id})
+    response = _generate_response(event.message.text, user_id)
 
     line_bot_api.reply_message(
         event.reply_token,
-        TextSendMessage(text=result.data['response']['text']))
+        TextSendMessage(text=response))
 
 
 if __name__ == "__main__":
