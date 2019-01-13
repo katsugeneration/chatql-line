@@ -6,6 +6,7 @@ import os
 import logging
 from flask import Flask, request, abort
 
+import chatql
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
@@ -15,6 +16,15 @@ app = Flask(__name__)
 line_bot_api = LineBotApi(os.environ.get('LINE_CHANNEL_ACCESS_TOKEN'))
 handler = WebhookHandler(os.environ.get('LINE_CHANNEL_SECRET'))
 app.logger.setLevel(logging.INFO)
+
+client = chatql.mongodb_client.MongoClient(
+            **{"db": os.environ.get('MONGO_DB', 'chatql'),
+               "host": os.environ.get('MONGO_HOST', '127.0.0.1'),
+               "port": int(os.environ.get('MONGO_PORT', '27017')),
+               "username": os.environ.get('MONGO_USER'),
+               "password": os.environ.get('MONGO_PASSWORD')})
+engine = chatql.engine.DialogEngine(client)
+client.import_scenario("scenario.json")
 
 
 @app.route("/callback", methods=['POST'])

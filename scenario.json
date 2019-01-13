@@ -1,0 +1,25 @@
+[
+    {
+        "attributes": {
+            "id": "111",
+            "priority": 100
+        },
+        "conditions": "isonce(attributes['id'])",
+        "response": "Hello!"
+    },
+    {
+        "attributes": {
+            "id": "112"
+        },
+        "conditions": "True",
+        "response": "Hello! Again!"
+    },
+    {
+        "attributes": {
+            "id": "113",
+            "priority": 90
+        },
+        "conditions": "regex(r'(.*?)your name(.*?)')",
+        "response": "My name is cahtql."
+    }
+]
