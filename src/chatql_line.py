@@ -80,9 +80,9 @@ def _get_user(**attributes):
         app.logger.error(result.errors)
         abort(500)
 
-    if result.data['createUser']['user']['id'] is None:
+    if result.data['user']['id'] is None:
         return _create_user(**attributes)
-    return result.data['createUser']['user']['id']
+    return result.data['user']['id']
 
 
 def _generate_response(request, user_id):
