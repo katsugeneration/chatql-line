@@ -38,7 +38,7 @@ chatql_query = '''
 
 @app.route("/callback", methods=['POST'])
 def callback():
-    """Line Webhook interface"""
+    """Line Webhook interface."""
     # get X-Line-Signature header value
     signature = request.headers['X-Line-Signature']
 
@@ -66,6 +66,10 @@ def handle_message(event):
                 chatql_query,
                 context={'engine': engine},
                 variables={'request': text})
+
+    if result.errors is not None:
+        print(result.data)
+        abort(500)
 
     line_bot_api.reply_message(
         event.reply_token,
