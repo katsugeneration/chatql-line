@@ -5,6 +5,7 @@
 import os
 import json
 import logging
+import subprocess
 from flask import Flask, request, abort
 
 import chatql
@@ -25,7 +26,9 @@ client = chatql.mongodb_client.MongoClient(
                "username": os.environ.get('MONGO_USER'),
                "password": os.environ.get('MONGO_PASSWORD')})
 engine = chatql.engine.DialogEngine(client)
-client.import_scenario("scenario.json")
+exitcode, _ = subprocess.getstatusoutput(str(os.environ.get('SCENARIO_DOWNLOAD_COMMAND')))
+if exitcode == 0:
+    client.import_scenario("scenario.json")
 
 
 def _create_user(**attributes):
