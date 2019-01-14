@@ -14,3 +14,4 @@ ChatQL LINE Webhook Interface
 - `MONGO_DB`: mongodbのデータベース名
 - `MONGO_USER`: mongodbのユーザー名
 - `MONGO_PASSWORD`: mongodbのパスワード
+- `SCENARIO_DOWNLOAD_COMMAND`: シナリオのダウンロードコマンド。 `scenario.json` としてダウンロードする必要があります
